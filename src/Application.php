@@ -15,6 +15,7 @@ class Application extends \Symfony\Component\Console\Application
      */
     protected static $modx;
 
+    // @see http://patorjk.com/software/taag/#p=display&f=Slant&t=Console
     protected static $logo = 'art/console.txt';
 
     protected static $name = 'Console Console';
@@ -36,7 +37,7 @@ class Application extends \Symfony\Component\Console\Application
      */
     public function getHelp()
     {
-        return file_get_contents(__DIR__ . '/' .static::$logo). parent::getHelp();
+        return $this->getArt() . parent::getHelp();
     }
 
     /**
@@ -72,6 +73,14 @@ class Application extends \Symfony\Component\Console\Application
                 // @TODO log error
             }
         }
+    }
+
+    /**
+     * @return bool|string
+     */
+    protected function getArt()
+    {
+        return file_get_contents(__DIR__ . '/' .static::$logo);
     }
 
     /**
