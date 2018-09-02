@@ -2,6 +2,7 @@
 
 namespace LCI\MODX\Console;
 
+use LCI\MODX\Console\Command\PackageCommands;
 use LCI\MODX\Console\Command\RefreshCache;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
