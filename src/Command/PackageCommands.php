@@ -2,6 +2,7 @@
 
 namespace LCI\MODX\Console\Command;
 
+use LCI\MODX\Console\Application;
 use LCI\MODX\Console\Console;
 
 interface PackageCommands
@@ -21,8 +22,8 @@ interface PackageCommands
     public function getActiveCommands();
 
     /**
-     * @param \LCI\MODX\Console\Command\Application $application
-     * @return \LCI\MODX\Console\Command\Application
+     * @param \LCI\MODX\Console\Application $application
+     * @return \LCI\MODX\Console\Application
      */
     public function loadActiveCommands(Application $application);
 }
