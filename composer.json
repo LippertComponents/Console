@@ -1,0 +1,35 @@
+{
+  "name": "lci/console",
+  "description": "An extendable Composer driven CLI console for MODX",
+  "license": "MIT",
+  "keywords": [
+    "modx", "cli"
+  ],
+  "authors": [
+    {
+      "name": "Joshua Gulledge",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "LCI\\MODX\\Console\\": "src/"
+    }
+  },
+  "require": {
+    "php" : ">=7.0.0",
+    "vlucas/phpdotenv": "^2.5",
+    "symfony/console": ">=3.4"
+  },
+  "suggest": {
+    "lci/orchestrator": "Easily create composer packages for MODX using Blend"
+  },
+  "bin": [
+    "bin/console"
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^6"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
