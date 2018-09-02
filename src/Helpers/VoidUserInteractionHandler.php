@@ -1,8 +1,6 @@
 <?php
 
-namespace LCI\MODX\Console\Command;
-
-use LCI\MODX\Console\Helpers\UserInteractionHandler;
+namespace LCI\MODX\Console\Helpers;
 
 /**
  * Class VoidUserInteractionHandler
