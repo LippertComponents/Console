@@ -8,6 +8,7 @@ use Dotenv\Exception\InvalidPathException;
 class Console
 {
     const COMMANDS_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'commands.php';
+    const ENV_DIR = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'env.php';
     const PACKAGE_COMMANDS_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'package_commands.php';
 
     /** @var \modX */
@@ -19,6 +20,9 @@ class Console
     /** @var array */
     protected $commands = [];
 
+    /** @var string */
+    protected $env_dir;
+
     /** @var array */
     protected $package_commands = [];
 
@@ -26,8 +30,18 @@ class Console
      * Console constructor.
      * @param string $dir ~ directory path where the .env file is located
      */
-    public function __construct($dir)
+    public function __construct()
     {
+        $dir = dirname(__DIR__);
+        $display_notice = false;
+
+        $this->loadCustomEnvDirectory();
+        if (!empty($this->env_dir)) {
+            $dir = $this->env_dir;
+            $display_notice = true;
+
+        }
+
         try {
             /** @var Dotenv $dotenv */
             $dotenv = new Dotenv($dir);
@@ -36,12 +50,10 @@ class Console
             $this->config = $_ENV;
 
         } catch (InvalidPathException $e) {
-            // Not required?
-            //echo 'Invalid .env file '.$e->getMessage();exit();
-
+            if ($display_notice) {
+                echo 'Invalid custom .env file '.$e->getMessage(). ' Fix or delete the cache file: ' . static::ENV_DIR.PHP_EOL;exit();
+            }
         }
-
-        // @TODO constants??
 
         if (isset($this->config['DISPLAY_ERRORS']) && (bool)$this->config['DISPLAY_ERRORS']) {
             error_reporting(E_ALL);
@@ -188,6 +200,9 @@ class Console
         }
     }
 
+    /**
+     * @param string $class ~ the fully qualified class name of a class that implements the LCI\MODX\Console\Command\PackageCommands interface
+     */
     public function registerPackageCommands($class)
     {
         if (!in_array($class, $this->package_commands) && is_a($class, 'LCI\MODX\Console\Command\PackageCommands', true)) {
@@ -195,6 +210,17 @@ class Console
 
             $this->writeCacheFile(static::PACKAGE_COMMANDS_FILE, $this->package_commands);
         }
+    }
+
+    /**
+     * @param string $directory ~ the full directory path with the .env file is located
+     * @return $this
+     */
+    public function setCustomEnvDirectory($directory)
+    {
+        $this->writeCacheFile(static::ENV_DIR, ['env_dir' => $directory]);
+
+        return $this;
     }
 
     /**
@@ -242,6 +268,9 @@ class Console
         return false;
     }
 
+    /**
+     * @return $this
+     */
     protected function loadConsoleCommands()
     {
         if (file_exists(static::COMMANDS_FILE)) {
@@ -251,6 +280,23 @@ class Console
         if (file_exists(static::PACKAGE_COMMANDS_FILE)) {
             $this->package_commands = include static::PACKAGE_COMMANDS_FILE;
         }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function loadCustomEnvDirectory()
+    {
+        if (file_exists(static::ENV_DIR)) {
+            $array = include static::ENV_DIR;
+            if (is_array($array) && isset($array['env_dir'])) {
+                $this->env_dir = $array['env_dir'];
+            }
+        }
+
+        return $this;
     }
 
     /**

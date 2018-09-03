@@ -2,6 +2,7 @@
 
 namespace LCI\MODX\Console;
 
+use LCI\MODX\Console\Command\CustomEnvDirectory;
 use LCI\MODX\Console\Command\PackageCommands;
 use LCI\MODX\Console\Command\RefreshCache;
 use Symfony\Component\Console\Input\InputArgument;
@@ -45,7 +46,11 @@ class Application extends \Symfony\Component\Console\Application
      */
     public function loadCommands()
     {
-        /** @var LCI\MODX\Console\Command\RefreshCache $refresh */
+        /** @var \LCI\MODX\Console\Command\CustomEnvDirectory $env */
+        $env = new CustomEnvDirectory();
+        $this->add($env->setConsole($this->console));
+
+        /** @var \LCI\MODX\Console\Command\RefreshCache $refresh */
         $refresh = new RefreshCache();
         $this->add($refresh->setConsole($this->console));
 
