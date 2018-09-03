@@ -30,7 +30,7 @@ class Application extends \Symfony\Component\Console\Application
     {
         $this->console = $console;
 
-        parent::__construct(self::$name, self::$version);
+        parent::__construct(static::$name, static::$version);
     }
 
     /**
@@ -85,7 +85,11 @@ class Application extends \Symfony\Component\Console\Application
      */
     protected function getArt()
     {
-        return file_get_contents(__DIR__ . '/' .static::$logo);
+        if (file_exists(static::$logo)) {
+            return file_get_contents(static::$logo);
+        }
+
+        return '';
     }
 
     /**
