@@ -136,15 +136,12 @@ class Console
      */
     public function isModxInstalled()
     {
+        $this->findMODX();
         if (isset($this->config['MODX_CONFIG_PATH']) && file_exists($this->config['MODX_CONFIG_PATH']) ) {
-            if (isset($this->config['MODX_CORE_PATH']) && file_exists($this->config['MODX_CORE_PATH'] . 'model/modx/modx.class.php')) {
-                return true;
-            }
+            return true;
         }
         if (defined('MODX_CONFIG_PATH') && file_exists(MODX_CONFIG_PATH) ) {
-            if (defined('MODX_CORE_PATH') && file_exists(MODX_CORE_PATH . 'model/modx/modx.class.php')) {
-                return true;
-            }
+            return true;
         }
 
         return false;
