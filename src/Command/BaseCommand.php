@@ -68,6 +68,10 @@ abstract class BaseCommand extends Command
     public function setConsole($console)
     {
         $this->console = $console;
+
+        if (method_exists($this, 'configureWithConsole')) {
+            $this->configureWithConsole();
+        }
         return $this;
     }
 

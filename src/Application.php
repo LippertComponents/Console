@@ -67,7 +67,7 @@ class Application extends \Symfony\Component\Console\Application
         $package_commands = $this->console->getPackageCommands();
 
         foreach ($package_commands as $package_command) {
-            /** @var LCI\MODX\Console\Command\PackageCommands $class */
+            /** @var \LCI\MODX\Console\Command\PackageCommands $class */
             try {
                 $class = new $package_command($this->console);
 
