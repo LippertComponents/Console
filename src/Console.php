@@ -80,9 +80,9 @@ class Console
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEnvDir(): string
+    public function getEnvDir()
     {
         return $this->env_dir;
     }
