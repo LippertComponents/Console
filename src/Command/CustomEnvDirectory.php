@@ -25,6 +25,20 @@ class CustomEnvDirectory extends BaseCommand
     }
 
     /**
+     * @param \LCI\MODX\Console\Console $console
+     * @return BaseCommand
+     */
+    public function setConsole($console)
+    {
+        $env_dir = $console->getEnvDir();
+        if (!empty($env_dir)) {
+            $this->setDescription($this->getDescription().', current: '.$env_dir);
+        }
+
+        return parent::setConsole($console);
+    }
+
+    /**
      * Runs the command.
      *
      * @param InputInterface $input

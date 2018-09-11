@@ -80,6 +80,14 @@ class Console
     }
 
     /**
+     * @return string
+     */
+    public function getEnvDir(): string
+    {
+        return $this->env_dir;
+    }
+
+    /**
      * @return array|bool
      */
     public function getPackageCommands()
@@ -291,9 +299,41 @@ class Console
             if (is_array($array) && isset($array['env_dir'])) {
                 $this->env_dir = $array['env_dir'];
             }
+        } else {
+            $path = $this->findCustomENV();
+            if ($path !== false) {
+                $this->setCustomEnvDirectory($path);
+                // now load the file:
+                $this->loadCustomEnvDirectory();
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * @return bool|string
+     */
+    protected function findCustomENV() {
+        $path = false;
+        $folders = explode(DIRECTORY_SEPARATOR, __DIR__);
+
+        // if installed inside of MODX:
+        for ($x = count($folders); $x > 0; $x--) {
+            $dir = implode(DIRECTORY_SEPARATOR, $folders) . DIRECTORY_SEPARATOR;
+
+            if (file_exists($dir . '.env')) {
+                $path = $dir;
+                break;
+            } elseif (file_exists($dir . 'bin' .DIRECTORY_SEPARATOR . '.env')) {
+                $path = $dir . DIRECTORY_SEPARATOR . 'bin' .DIRECTORY_SEPARATOR;
+                break;
+            }
+            // remove last folder:
+            array_pop($folders);
+        }
+
+        return $path;
     }
 
     /**
