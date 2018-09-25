@@ -23,6 +23,9 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
     /** @var \Symfony\Component\Console\Command\Command; */
     protected $command;
 
+    /** @var bool */
+    protected $interactive = true;
+
     /** @var \Symfony\Component\Console\Helper\QuestionHelper */
     protected $questionHelper;
 
@@ -48,12 +51,31 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
     }
 
     /**
+     * @return bool
+     */
+    public function isInteractive(): bool
+    {
+        return $this->interactive;
+    }
+
+    /**
+     * @param bool $interactive
+     * @return ConsoleUserInteractionHandler
+     */
+    public function setInteractive(bool $interactive): ConsoleUserInteractionHandler
+    {
+        $this->interactive = $interactive;
+        return $this;
+    }
+
+    /**
      * @param string $question
      * @param bool $default
      * @return bool
      */
     public function promptConfirm(string $question, $default=true)
     {
+        $this->handleInteraction();
         $confirmationQuestion = new ConfirmationQuestion($question.' <comment>(Y/N)</comment> ', $default);
         return $this->questionHelper->ask($this->input, $this->output, $confirmationQuestion);
     }
@@ -65,6 +87,7 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
      */
     public function promptInput(string $question, $default=null)
     {
+        $this->handleInteraction();
         $questionInput = new Question($question, $default);
         return $this->questionHelper->ask($this->input, $this->output, $questionInput);
     }
@@ -79,6 +102,7 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
     public function promptSelectOneOption(string $question, $default=null, $options=[], $error_message='%s is an invalid choice.')
     {
         $pretty_options = $this->getPrettyOptions($options);
+        $this->handleInteraction();
 
         /** @var \Symfony\Component\Console\Question\ChoiceQuestion $question */
         $choiceQuestion = new ChoiceQuestion(
@@ -101,6 +125,7 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
     public function promptSelectMultipleOptions(string $question, $default=null, $options=[], $error_message='%s is an invalid choice.')
     {
         $pretty_options = $this->getPrettyOptions($options);
+        $this->handleInteraction();
 
         /** @var \Symfony\Component\Console\Question\ChoiceQuestion $question */
         $choiceQuestion = new ChoiceQuestion(
@@ -122,6 +147,8 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
      */
     public function promptHiddenInput(string $question, $default=null)
     {
+        $this->handleInteraction();
+
         $questionInput = new Question($question, $default);
         $questionInput
             ->setHidden(true)
@@ -144,6 +171,14 @@ class ConsoleUserInteractionHandler implements UserInteractionHandler
                 $this->output->writeln($string);
                 break;
         }
+    }
+
+    /**
+     *
+     */
+    protected function handleInteraction()
+    {
+        $this->input->setInteractive($this->interactive);
     }
 
     /**
