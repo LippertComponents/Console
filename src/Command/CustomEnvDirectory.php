@@ -2,6 +2,7 @@
 
 namespace LCI\MODX\Console\Command;
 
+use LCI\MODX\Console\Console;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,7 +50,7 @@ class CustomEnvDirectory extends BaseCommand
     {
         $dir = $input->getArgument('dir');
 
-        $this->console->setCustomEnvDirectory($dir);
+        Console::setCustomEnvDirectory($dir);
 
         $output->writeln('### ENV directory has been set to '.$dir.' ###');
     }
