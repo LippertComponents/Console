@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1pl] - 2019-03-08
+### Fix
+
+- Fixed Accessing static property LCI\MODX\Console\Console::$env_dir_path as non static in src/Console.php on line 99
+
 ## [1.1.0pl] - 2019-03-08
 ### Added
 

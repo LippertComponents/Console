@@ -96,7 +96,7 @@ class Console
      */
     public function getEnvDir()
     {
-        return $this->env_dir_path;
+        return static::$env_dir_path;
     }
 
     /**
