@@ -27,3 +27,12 @@ Not recommended for MODX Cloud as only the www directory gets copied for snapsho
 **Remain steps are the same in the created directory**
 
 1. Run ```composer require lci/console```
+
+## Custom .env
+
+By default if you want an .env file place it in the /core directory.
+
+Optional set your own custom path, via command line. Example within /core $ `php vendor/bin/console  console:env-dir /var/path/`
+
+Note on MODXCloud you need to provide the realpath not the symlink path if you set a custom path. Like /paas/cXXXX/www/core/path/.env
+

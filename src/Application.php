@@ -18,7 +18,7 @@ class Application extends \Symfony\Component\Console\Application
 
     protected static $name = 'Console Console';
 
-    protected static $version = '1.0.7 pl';
+    protected static $version = '1.1.2 pl';
 
     /** @var Console */
     protected $console;

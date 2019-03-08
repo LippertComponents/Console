@@ -57,7 +57,7 @@ class Console
 
              try {
                  /** @var Dotenv $dotenv */
-                 $dotenv = new Dotenv($dir);
+                 $dotenv = new Dotenv(static::getFullMODXCloudPath($dir));
                  $dotenv->load();
                  $dotenv->getEnvironmentVariableNames();
                  static::$config = $_ENV;
@@ -235,6 +235,25 @@ class Console
     public static function setCustomEnvDirectory($directory)
     {
         static::writeCacheFile(static::ENV_DIR, ['env_dir' => $directory]);
+    }
+
+    /**
+     * @param string $dir
+     * @return string
+     */
+    protected static function getFullMODXCloudPath($dir)
+    {
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+        $env = $dir . DIRECTORY_SEPARATOR . '.env';
+        if ($dir == '/www/core' && (!is_readable($env) || !is_file($env))) {
+            $parts = explode($dir, __DIR__);
+
+            if (count($parts) > 1) {
+                return $parts[0] . $dir;
+            }
+        }
+
+        return $dir;
     }
 
     /**
