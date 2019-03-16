@@ -18,7 +18,9 @@ class Console
     public static $modx;
 
     /** @var array  */
-    protected static $config = [
+    protected static $config = [];
+
+    protected static $paths = [
         'config_dir' =>  __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR,
         'commands_file' => __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'commands.php',
         'env_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'env.php',
@@ -44,7 +46,7 @@ class Console
     public function __construct()
     {
         $this->findMODX();
-        static::loadEnv();
+        $this->loadEnvIntoConfig();
 
         $this->loadConsoleCommands();
     }
@@ -54,34 +56,7 @@ class Console
      */
     public static function loadEnv()
     {
-         if (!static::$env_loaded) {
-             $dir = dirname(__DIR__);
-             $display_notice = false;
-
-             static::loadCustomEnvDirectory();
-             if (!empty(static::$env_dir_path)) {
-                 $dir = static::$env_dir_path;
-                 $display_notice = true;
-             }
-
-             try {
-                 /** @var Dotenv $dotenv */
-                 $dotenv = new Dotenv(static::getFullMODXCloudPath($dir));
-                 $dotenv->load();
-                 $dotenv->getEnvironmentVariableNames();
-                 static::$config = $_ENV;
-
-             } catch (InvalidPathException $e) {
-                 if ($display_notice) {
-                     echo 'Invalid custom .env file '.$e->getMessage(). ' Fix or delete the cache file: ' . static::$config['env_dir'].PHP_EOL;exit();
-                 }
-             }
-
-             if (isset(static::$config['DISPLAY_ERRORS']) && (bool)static::$config['DISPLAY_ERRORS']) {
-                 error_reporting(E_ALL);
-                 ini_set('display_errors', 1);
-             }
-         }
+        $console = new Console();
     }
 
     /**
@@ -116,6 +91,13 @@ class Console
         return $this->package_commands;
     }
 
+    /**
+     * @return array
+     */
+    public function getConfigFilePaths()
+    {
+        return static::$paths;
+    }
 
     /**
      * Loads a new modX instance
@@ -191,7 +173,7 @@ class Console
                 }
             }
 
-            static::writeCacheFile(static::$config['commands_file'], $this->commands);
+            static::writeCacheFile(static::$paths['commands_file'], $this->commands);
         }
     }
 
@@ -210,7 +192,7 @@ class Console
                 }
             }
 
-            static::writeCacheFile(static::$config['package_commands_file'], $this->package_commands);
+            static::writeCacheFile(static::$paths['package_commands_file'], $this->package_commands);
         }
     }
 
@@ -222,7 +204,7 @@ class Console
         if (!in_array($class, $this->commands) && is_a($class, 'Symfony\Component\Console\Command\Command', true)) {
             $this->commands[] = $class;
 
-            static::writeCacheFile(static::$config['commands_file'], $this->commands);
+            static::writeCacheFile(static::$paths['commands_file'], $this->commands);
         }
     }
 
@@ -234,7 +216,7 @@ class Console
         if (!in_array($class, $this->package_commands) && is_a($class, 'LCI\MODX\Console\Command\PackageCommands', true)) {
             $this->package_commands[] = $class;
 
-            static::writeCacheFile(static::$config['package_commands_file'], $this->package_commands);
+            static::writeCacheFile(static::$paths['package_commands_file'], $this->package_commands);
         }
     }
 
@@ -243,7 +225,7 @@ class Console
      */
     public static function setCustomEnvDirectory($directory)
     {
-        static::writeCacheFile(static::$config['env_dir'], ['env_dir' => $directory]);
+        static::writeCacheFile(static::$paths['env_dir'], ['env_dir' => $directory]);
     }
 
     /**
@@ -293,16 +275,16 @@ class Console
         if (defined('MODX_CONFIG_PATH')) {
             $cached_files = static::$config;
 
-            static::$config = [
+            static::$paths = [
                 'config_dir' => dirname(MODX_CONFIG_PATH),
                 'commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_commands.php',
                 'env_dir' => dirname(MODX_CONFIG_PATH) . 'lci_console_env.php',
                 'package_commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_package_commands.php'
             ];
 
-            $this->copyCacheConfig($cached_files['commands_file'], static::$config['commands_file']);
-            $this->copyCacheConfig($cached_files['env_dir'], static::$config['env_dir']);
-            $this->copyCacheConfig($cached_files['package_commands_file'], static::$config['package_commands_file']);
+            $this->copyCacheConfig($cached_files['commands_file'], static::$paths['commands_file']);
+            $this->copyCacheConfig($cached_files['env_dir'], static::$paths['env_dir']);
+            $this->copyCacheConfig($cached_files['package_commands_file'], static::$paths['package_commands_file']);
         }
     }
 
@@ -341,12 +323,12 @@ class Console
      */
     protected function loadConsoleCommands()
     {
-        if (file_exists(static::$config['commands_file'])) {
-            $this->commands = include static::$config['commands_file'];
+        if (file_exists(static::$paths['commands_file'])) {
+            $this->commands = include static::$paths['commands_file'];
         }
 
-        if (file_exists(static::$config['package_commands_file'])) {
-            $this->package_commands = include static::$config['package_commands_file'];
+        if (file_exists(static::$paths['package_commands_file'])) {
+            $this->package_commands = include static::$paths['package_commands_file'];
         }
 
         return $this;
@@ -357,8 +339,8 @@ class Console
      */
     protected static function loadCustomEnvDirectory()
     {
-        if (file_exists(static::$config['env_dir'])) {
-            $array = include static::$config['env_dir'];
+        if (file_exists(static::$paths['env_dir'])) {
+            $array = include static::$paths['env_dir'];
             if (is_array($array) && isset($array['env_dir'])) {
                 static::$env_dir_path = $array['env_dir'];
             }
@@ -368,6 +350,38 @@ class Console
                 static::setCustomEnvDirectory($path);
                 // now load the file:
                 static::loadCustomEnvDirectory();
+            }
+        }
+    }
+
+    protected function loadEnvIntoConfig()
+    {
+        if (!static::$env_loaded) {
+            $dir = dirname(__DIR__);
+            $display_notice = false;
+
+            static::loadCustomEnvDirectory();
+            if (!empty(static::$env_dir_path)) {
+                $dir = static::$env_dir_path;
+                $display_notice = true;
+            }
+
+            try {
+                /** @var Dotenv $dotenv */
+                $dotenv = new Dotenv(static::getFullMODXCloudPath($dir));
+                $dotenv->load();
+                $dotenv->getEnvironmentVariableNames();
+                static::$config = $_ENV;
+
+            } catch (InvalidPathException $e) {
+                if ($display_notice) {
+                    echo 'Invalid custom .env file '.$e->getMessage(). ' Fix or delete the config file: ' . static::$paths['env_dir'].PHP_EOL;exit();
+                }
+            }
+
+            if (isset(static::$config['DISPLAY_ERRORS']) && (bool)static::$config['DISPLAY_ERRORS']) {
+                error_reporting(E_ALL);
+                ini_set('display_errors', 1);
             }
         }
     }
