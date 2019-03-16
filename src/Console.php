@@ -7,15 +7,23 @@ use Dotenv\Exception\InvalidPathException;
 
 class Console
 {
+    /** @deprecated will be removed in 2.0 */
     const COMMANDS_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'commands.php';
+    /** @deprecated will be removed in 2.0 */
     const ENV_DIR = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'env.php';
+    /** @deprecated will be removed in 2.0 */
     const PACKAGE_COMMANDS_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'package_commands.php';
 
     /** @var \modX */
     public static $modx;
 
     /** @var array  */
-    protected static $config = [];
+    protected static $config = [
+        'config_dir' =>  __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR,
+        'commands_file' => __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'commands.php',
+        'env_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'env.php',
+        'package_commands_file' => __DIR__ . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'package_commands.php'
+    ];
 
     /** @var bool  */
     protected static $env_loaded = false;
@@ -35,6 +43,7 @@ class Console
      */
     public function __construct()
     {
+        $this->findMODX();
         static::loadEnv();
 
         $this->loadConsoleCommands();
@@ -64,7 +73,7 @@ class Console
 
              } catch (InvalidPathException $e) {
                  if ($display_notice) {
-                     echo 'Invalid custom .env file '.$e->getMessage(). ' Fix or delete the cache file: ' . static::ENV_DIR.PHP_EOL;exit();
+                     echo 'Invalid custom .env file '.$e->getMessage(). ' Fix or delete the cache file: ' . static::$config['env_dir'].PHP_EOL;exit();
                  }
              }
 
@@ -182,7 +191,7 @@ class Console
                 }
             }
 
-            static::writeCacheFile(static::COMMANDS_FILE, $this->commands);
+            static::writeCacheFile(static::$config['commands_file'], $this->commands);
         }
     }
 
@@ -201,7 +210,7 @@ class Console
                 }
             }
 
-            static::writeCacheFile(static::PACKAGE_COMMANDS_FILE, $this->package_commands);
+            static::writeCacheFile(static::$config['package_commands_file'], $this->package_commands);
         }
     }
 
@@ -213,7 +222,7 @@ class Console
         if (!in_array($class, $this->commands) && is_a($class, 'Symfony\Component\Console\Command\Command', true)) {
             $this->commands[] = $class;
 
-            static::writeCacheFile(static::COMMANDS_FILE, $this->commands);
+            static::writeCacheFile(static::$config['commands_file'], $this->commands);
         }
     }
 
@@ -225,7 +234,7 @@ class Console
         if (!in_array($class, $this->package_commands) && is_a($class, 'LCI\MODX\Console\Command\PackageCommands', true)) {
             $this->package_commands[] = $class;
 
-            static::writeCacheFile(static::PACKAGE_COMMANDS_FILE, $this->package_commands);
+            static::writeCacheFile(static::$config['package_commands_file'], $this->package_commands);
         }
     }
 
@@ -234,7 +243,7 @@ class Console
      */
     public static function setCustomEnvDirectory($directory)
     {
-        static::writeCacheFile(static::ENV_DIR, ['env_dir' => $directory]);
+        static::writeCacheFile(static::$config['env_dir'], ['env_dir' => $directory]);
     }
 
     /**
@@ -280,6 +289,32 @@ class Console
         if (!defined('MODX_CONFIG_PATH') && defined('MODX_PATH')) {
             define('MODX_CONFIG_PATH', MODX_PATH.'core/config/config.inc.php');
         }
+
+        if (defined('MODX_CONFIG_PATH')) {
+            $cached_files = static::$config;
+
+            static::$config = [
+                'config_dir' => dirname(MODX_CONFIG_PATH),
+                'commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_commands.php',
+                'env_dir' => dirname(MODX_CONFIG_PATH) . 'lci_console_env.php',
+                'package_commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_package_commands.php'
+            ];
+
+            $this->copyCacheConfig($cached_files['commands_file'], static::$config['commands_file']);
+            $this->copyCacheConfig($cached_files['env_dir'], static::$config['env_dir']);
+            $this->copyCacheConfig($cached_files['package_commands_file'], static::$config['package_commands_file']);
+        }
+    }
+
+    /**
+     * @param string $cache_file
+     * @param string $config_file
+     */
+    protected function copyCacheConfig($cache_file, $config_file)
+    {
+        if (file_exists($cache_file) && !file_exists($config_file) && is_dir(dirname($config_file))) {
+            copy($cache_file, $config_file);
+        }
     }
 
     /**
@@ -306,12 +341,12 @@ class Console
      */
     protected function loadConsoleCommands()
     {
-        if (file_exists(static::COMMANDS_FILE)) {
-            $this->commands = include static::COMMANDS_FILE;
+        if (file_exists(static::$config['commands_file'])) {
+            $this->commands = include static::$config['commands_file'];
         }
 
-        if (file_exists(static::PACKAGE_COMMANDS_FILE)) {
-            $this->package_commands = include static::PACKAGE_COMMANDS_FILE;
+        if (file_exists(static::$config['package_commands_file'])) {
+            $this->package_commands = include static::$config['package_commands_file'];
         }
 
         return $this;
@@ -322,8 +357,8 @@ class Console
      */
     protected static function loadCustomEnvDirectory()
     {
-        if (file_exists(static::ENV_DIR)) {
-            $array = include static::ENV_DIR;
+        if (file_exists(static::$config['env_dir'])) {
+            $array = include static::$config['env_dir'];
             if (is_array($array) && isset($array['env_dir'])) {
                 static::$env_dir_path = $array['env_dir'];
             }
