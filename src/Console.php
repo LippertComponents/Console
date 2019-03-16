@@ -273,7 +273,7 @@ class Console
         }
 
         if (defined('MODX_CONFIG_PATH')) {
-            $cached_files = static::$config;
+            $cached_files = static::$paths;
 
             static::$paths = [
                 'config_dir' => dirname(MODX_CONFIG_PATH),
