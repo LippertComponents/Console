@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3pl] - 2019-03-26
+### Fix
+
+- Move Console config files into MODX/core/config directory 
+- Deprecated: `Console::COMMANDS_FILE, Console::ENV_DIR and Console::PACKAGE_COMMANDS_FILE`, do not use
+Instead use: `$paths = new Console()->getConfigFilePaths();`
+
 ## [1.1.2pl] - 2019-03-08
 ### Fix
 

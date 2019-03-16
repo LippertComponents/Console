@@ -28,6 +28,10 @@ Not recommended for MODX Cloud as only the www directory gets copied for snapsho
 
 1. Run ```composer require lci/console```
 
+## Config for Packages
+
+As of 1.1.3, dependant packages classes will be stored in MODX/core/config/lci_console*. 
+
 ## Custom .env
 
 By default if you want an .env file place it in the /core directory.
