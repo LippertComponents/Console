@@ -276,10 +276,10 @@ class Console
             $cached_files = static::$paths;
 
             static::$paths = [
-                'config_dir' => dirname(MODX_CONFIG_PATH),
-                'commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_commands.php',
-                'env_dir' => dirname(MODX_CONFIG_PATH) . 'lci_console_env.php',
-                'package_commands_file' => dirname(MODX_CONFIG_PATH) . 'lci_console_package_commands.php'
+                'config_dir' => dirname(MODX_CONFIG_PATH) . DIRECTORY_SEPARATOR,
+                'commands_file' => dirname(MODX_CONFIG_PATH) . DIRECTORY_SEPARATOR . 'lci_console_commands.php',
+                'env_dir' => dirname(MODX_CONFIG_PATH) . DIRECTORY_SEPARATOR . 'lci_console_env.php',
+                'package_commands_file' => dirname(MODX_CONFIG_PATH) . DIRECTORY_SEPARATOR . 'lci_console_package_commands.php'
             ];
 
             $this->copyCacheConfig($cached_files['commands_file'], static::$paths['commands_file']);
