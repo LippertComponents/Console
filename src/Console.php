@@ -4,6 +4,7 @@ namespace LCI\MODX\Console;
 
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidPathException;
+use SebastianBergmann\CodeCoverage\Report\PHP;
 
 class Console
 {
@@ -394,16 +395,18 @@ class Console
         $folders = explode(DIRECTORY_SEPARATOR, __DIR__);
 
         // if installed inside of MODX:
-        for ($x = count($folders); $x > 0; $x--) {
+        for ($x = count($folders); $x > 1; $x--) {
             $dir = implode(DIRECTORY_SEPARATOR, $folders) . DIRECTORY_SEPARATOR;
 
+            // MODX Cloud permissions error to check this directory, so don't search it
+            if ($dir == '/paas/') {
+                continue;
+            }
             if (file_exists($dir . '.env')) {
                 $path = $dir;
                 break;
-            } elseif (file_exists($dir . 'bin' .DIRECTORY_SEPARATOR . '.env')) {
-                $path = $dir . DIRECTORY_SEPARATOR . 'bin' .DIRECTORY_SEPARATOR;
-                break;
             }
+
             // remove last folder:
             array_pop($folders);
         }
